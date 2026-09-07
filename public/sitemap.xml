@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- One-page site, one <url>. Fragment anchors (#about, #projects, ...) are
+     deliberately NOT listed: they are not distinct documents, and Google treats
+     fragment-only sitemap entries as noise rather than as extra pages.
+     Bump <lastmod> by hand when real content changes (a new role, a new
+     project). If a /blog/ or /writing/ section ever ships, promote this to a
+     build-time generation step at that point — not worth automating for one URL. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://binoysasmal.tech/</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>

@@ -1,0 +1,60 @@
+# Builds the Vite site and publishes dist/ to GitHub Pages.
+#
+# Why a workflow and not the "deploy from a branch" setting: this is a Vite
+# project, so the thing that must be served is the BUILD OUTPUT, not the repo.
+# public/ (robots.txt, sitemap.xml, llms.txt, CNAME, maps/, fonts/) is copied
+# verbatim into dist/ by Vite, which is how those files reach the domain root.
+#
+# dist/ is gitignored on purpose — it is built here on the runner, never committed.
+
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never let two deploys race. `cancel-in-progress: false` so a queued deploy
+# finishes rather than being dropped mid-publish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      # `npm run build` is `tsc --noEmit && vite build` — the typecheck is part
+      # of the gate on purpose, so a type error fails the deploy instead of
+      # shipping.
+      - run: npm run build
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

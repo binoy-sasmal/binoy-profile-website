@@ -1,0 +1,205 @@
+/* Fonts — self-hosted, latin subset */
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('/fonts/space-grotesk-latin-300-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/space-grotesk-latin-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/space-grotesk-latin-500-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-latin-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-latin-500-normal.woff2') format('woff2');
+}
+
+/* Reset */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  /* Mirrors the critical inline block in index.html <head>, which is what
+     actually beats the white first-paint flash. Repeated here so this
+     stylesheet is correct on its own and the canvas colour never depends on
+     the inline copy surviving. */
+  background: var(--color-void);
+  color-scheme: dark;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--color-void);
+  color: var(--color-chalk);
+  font-family: var(--font-display);
+  font-size: var(--text-body);
+  font-weight: var(--fw-regular);
+  line-height: 1.6;
+  letter-spacing: 0.005em;
+  min-height: 100svh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img, svg, video, canvas { display: block; max-width: 100%; }
+[hidden] { display: none !important; }
+button { font: inherit; background: none; border: none; cursor: pointer; color: inherit; }
+a { color: inherit; text-decoration: none; }
+ul, ol { list-style: none; }
+
+::selection { background: var(--color-teal-glow); color: var(--color-void); }
+
+/* Focus — 2px Teal Glow ring, 2px offset, everywhere */
+:focus-visible {
+  outline: 2px solid var(--color-teal-glow);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Skip link */
+.skip-link {
+  position: fixed;
+  top: var(--space-12);
+  left: var(--space-12);
+  z-index: 100;
+  transform: translateY(-200%);
+  background: var(--color-void);
+  border: 1px solid var(--color-teal-glow);
+  color: var(--color-teal-glow);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  padding: 10px 16px;
+  border-radius: var(--radius-pill);
+}
+.skip-link:focus-visible { transform: none; }
+
+/* ---- Shared type roles ---- */
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-weight: var(--fw-medium);
+  font-size: var(--text-label);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-teal-glow);
+}
+
+.display {
+  font-weight: var(--fw-thin);
+  font-size: var(--text-display);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  color: var(--color-chalk);
+}
+
+.body-muted { color: var(--color-ash); }
+
+/* ---- Buttons ---- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-weight: var(--fw-medium);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-radius: var(--radius-pill);
+  padding: 14px 20px;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+.btn--primary {
+  background: var(--color-teal-core);
+  color: var(--color-void);
+}
+.btn--primary:hover { background: var(--color-teal-glow); }
+.btn--ghost {
+  border: 1px solid var(--color-teal-glow);
+  color: var(--color-teal-glow);
+}
+.btn--ghost:hover { border-color: var(--color-chalk); color: var(--color-chalk); }
+
+.text-action {
+  font-family: var(--font-mono);
+  font-size: var(--text-body-sm);
+  color: var(--color-chalk);
+}
+.text-action:hover,
+.text-action:focus-visible {
+  text-decoration: underline;
+  text-decoration-color: var(--color-teal-glow);
+  text-underline-offset: 4px;
+}
+
+/* ---- Tags ---- */
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+}
+.tags li {
+  font-family: var(--font-mono);
+  font-size: var(--text-tag);
+  letter-spacing: 0.02em;
+  color: var(--color-ash);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-pill);
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+
+/* ---- Metric readout ---- */
+
+.metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-36) var(--space-60);
+}
+.metric {
+  display: grid;
+  gap: var(--space-6);
+}
+.metric__value {
+  font-family: var(--font-mono);
+  font-weight: var(--fw-medium);
+  font-size: var(--text-metric);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: var(--color-filament);
+}
+.metric--teal .metric__value { color: var(--color-teal-glow); }
+.metric__label {
+  font-family: var(--font-mono);
+  font-weight: var(--fw-medium);
+  font-size: var(--text-label);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-smoke);
+}
+
+/* ---- Hairline ---- */
+
+.hairline { border: 0; border-top: 1px solid var(--color-hairline); }

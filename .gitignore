@@ -1,0 +1,26 @@
+# Node / Vite
+node_modules/
+dist/
+dist-web/
+.vite/
+
+# Environments
+.env
+.env.local
+venv/
+.venv/
+env/
+
+# Python artefacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+
+# Editors / tooling
+.vscode/
+.idea/
+.claude/
+.DS_Store
+Thumbs.db

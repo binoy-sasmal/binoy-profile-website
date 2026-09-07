@@ -1,0 +1,938 @@
+/* Section layouts — the design spec (rhythm), §6.4 (hero), §7 (components), §8 (build map) */
+
+/* The persistent WebGL field sits behind everything; engine mounts in Phase 3. */
+.field {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.nav, main, .footer { position: relative; z-index: 1; }
+
+/* ---- Nav ---- */
+
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  transition: background-color 200ms ease, border-color 200ms ease;
+  border-bottom: 1px solid transparent;
+}
+.nav--scrolled {
+  background: rgba(6, 9, 11, 0.82);
+  backdrop-filter: blur(12px);
+  border-bottom-color: var(--color-hairline);
+}
+.nav__inner {
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: var(--space-18) var(--gutter);
+  display: flex;
+  align-items: center;
+  gap: var(--space-36);
+}
+/* ---- Brand mark: one glyph, two states -----------------------------------
+   The collapsed `b.` and the full wordmark are the SAME element. Rather than
+   crossfading two assets (which made the `b` change size and jump), the
+   wordmark is clipped to its first character; expanding just opens the clip.
+   The `b` is therefore literally the same pixels throughout and can never
+   drift. `.nav__dot` supplies the period while the real one is still clipped.
+
+   Every constant below is DERIVED from the SVG, not eyeballed —
+   viewBox 1200.8x181.1, mono advance 102.4, glyph scale 0.16, rendered at 26px
+   (k = 26/181.1 = 0.143567):
+     wordmark width  1200.8 * k = 172.40px
+     one advance      102.4 * k =  14.70px  -> the clip cut, exactly the `b`
+     period centre   (101.68 + .16*300) * k = 21.49px, r = .16*82 * k = 1.88px
+     collapsed cluster spans 1.92..23.37 -> centre 12.65; tile centre is 18,
+     hence the 5.35px park. Re-derive these if the wordmark is ever reissued. */
+.nav__brand {
+  position: relative;
+  display: block;
+  /* Explicit box: the bar's height and the links' position must not move
+     between states, and the children are absolutely positioned. */
+  width: 173px;
+  height: 36px;
+  /* The site's curve — power3.out, matching motion/reveals.ts, so the bar
+     speaks the same motion language as the section reveals. Never a bare
+     `ease`; this decelerates hard with no overshoot. */
+  --brand-ease: cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+/* Pine tile — presence for the lone glyph. Radius ≈22%, the logo tile's own
+   proportion; the favicon is already this mark on a tile. */
+.nav__tile {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 36px;
+  height: 36px;
+  margin-top: -18px;
+  background: var(--color-pine);
+  border: 1px solid var(--color-hairline);
+  border-radius: 8px;
+  transform: scale(1);
+  /* Collapse direction (see .nav--past-hero for expand). */
+  transition: opacity 200ms var(--brand-ease) 120ms,
+              transform 200ms var(--brand-ease) 120ms;
+}
+
+.nav__lockup {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 26px;
+  margin-top: -13px;
+  transform: translateX(5.35px); /* parks the b+dot optically in the tile */
+  transition: transform 280ms var(--brand-ease);
+}
+.nav__wordmark {
+  display: block;
+  height: 26px;
+  width: auto;
+  clip-path: inset(0 calc(100% - 14.7px) 0 0); /* exactly the `b` */
+  transition: clip-path 280ms var(--brand-ease);
+}
+.nav__dot {
+  position: absolute;
+  left: 19.61px;
+  top: 16.34px;
+  width: 3.77px;
+  height: 3.77px;
+  border-radius: 50%;
+  background: var(--color-teal-glow);
+  transition: opacity 90ms var(--brand-ease) 220ms;
+}
+
+/* Past the hero the bar takes over as the only place the name appears.
+   Channels are staggered so it reads as ONE gesture rather than four:
+   the dot clears first (it is about to be overwritten by the revealed `i`),
+   the tile dissolves, then the name unpacks left-to-right. Expanding is the
+   featured motion at 440ms; collapsing (the base rules above) runs 280ms —
+   exits stay subtler than enters. */
+.nav--past-hero .nav__dot {
+  opacity: 0;
+  transition: opacity 90ms var(--brand-ease);
+}
+.nav--past-hero .nav__tile {
+  opacity: 0;
+  transform: scale(0.9); /* never scale(0) — 0.9 keeps it physical */
+  transition: opacity 200ms var(--brand-ease), transform 200ms var(--brand-ease);
+}
+.nav--past-hero .nav__lockup {
+  transform: translateX(0); /* the b settles onto the rail */
+  transition: transform 440ms var(--brand-ease) 90ms;
+}
+.nav--past-hero .nav__wordmark {
+  clip-path: inset(0 0px 0 0);
+  transition: clip-path 440ms var(--brand-ease) 90ms;
+}
+
+/* The state change is functional (which brand state you are in), so it still
+   happens under reduced motion — just instantly, with no wipe or travel. */
+@media (prefers-reduced-motion: reduce) {
+  .nav__tile,
+  .nav__lockup,
+  .nav__wordmark,
+  .nav__dot,
+  .nav--past-hero .nav__tile,
+  .nav--past-hero .nav__lockup,
+  .nav--past-hero .nav__wordmark,
+  .nav--past-hero .nav__dot { transition: none; }
+}
+.nav__links {
+  display: flex;
+  gap: var(--space-24);
+  margin-left: auto;
+}
+.nav__links a {
+  font-family: var(--font-mono);
+  font-size: var(--text-body-sm);
+  color: var(--color-smoke);
+  transition: color 160ms ease;
+}
+.nav__links a:hover,
+.nav__links a:focus-visible { color: var(--color-chalk); }
+
+@media (max-width: 768px) {
+  /* The five links do not fit at this width. The Résumé pill used to hold the
+     right side here; with it gone (2026-09-05) the bar carries the brand mark
+     alone on mobile — the page is a single scroll, so nothing is unreachable. */
+  .nav__links { display: none; }
+}
+
+/* ---- Section rhythm ---- */
+
+.section {
+  padding: calc(var(--section-gap) / 2) 0;
+  scroll-margin-top: var(--space-96); /* clear the fixed nav on anchor jumps */
+}
+.section__inner {
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+.section .display { margin: var(--space-12) 0 var(--space-60); }
+
+@media (max-width: 768px) {
+  :root { --section-gap: var(--space-96); }
+}
+
+/* ---- 1 · Hero (50/50 split, §6.4) ---- */
+
+.hero {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  padding-top: var(--space-96); /* clear the fixed nav */
+}
+/* --page-max, NOT --canvas-max (Binoy, 2026-09-05). The nav, Experience and
+   Skills all sit on the --page-max rail (it is what .section__inner establishes),
+   so a --canvas-max hero put its copy 120px LEFT of every other left edge on the
+   site at wide viewports — the nav mark visibly overhung it. The nav was already
+   correct; the hero was the outlier. the design spec wireframe shows them flush, so
+   this brings the code back to spec rather than deviating from it.
+   Safe for the field: .hero__stage is only a spacer — the particle canvas is
+   position:fixed over the whole viewport and the face is placed by the morph
+   engine, so narrowing the grid does not shrink the constellation. */
+.hero__inner {
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 720px) 1fr;
+  gap: var(--space-60);
+  align-items: center;
+}
+/* NOTE: the `.hero-intro` pre-paint hidden state deliberately does NOT live
+   here — it is in the critical inline <style> in index.html <head>, because in
+   dev this stylesheet is injected by JS and would arrive too late to prevent
+   the flash. Do not re-add it here; there would then be two copies to keep in
+   sync with hero/assembly.ts. */
+
+/* Visually hidden but read by AT / crawlers — the real name behind the blocks. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+/* The h1 now just wraps the terminal-block nameplate (built by hero/nameplate.ts). */
+.hero__headline {
+  margin: var(--space-12) 0 var(--space-18);
+}
+
+/* ---- Terminal-block nameplate: "BINOY SASMAL" ----
+   --cell drives block size responsively; a unified drop-shadow gives the reference's
+   extruded echo + a soft teal terminal glow. Blocks build in L->R via nameplate.ts. */
+.hero__nameplate {
+  /* Size the block off the available column width (not raw vw) so the longest
+     word "SASMAL" (~64 cell-units incl. spacing + echo + cursor) can never
+     force horizontal overflow on narrow screens.
+     Cap lowered 11px -> 8px (Binoy, 2026-09-05): at 11px the name ran ~2.5x the
+     tagline, so the pitch ("Models that ship.") read as subordinate to it. Only
+     the cap changed — the calc term still governs narrow screens. */
+  --cell: max(4px, min(8px, calc((100vw - 2 * var(--gutter)) / 64)));
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--cell) * 1.5); /* room for the echo of the line above */
+  align-items: flex-start;
+  width: fit-content;
+  max-width: 100%;
+  /* Soft teal terminal glow; the 3D depth comes from the per-letter echo layer. */
+  filter: drop-shadow(0 0 calc(var(--cell) * 0.7) rgba(93, 202, 165, 0.35));
+}
+/* No-JS / pre-hydration fallback: show the name as plain display text. */
+.hero__nameplate:empty::before {
+  content: 'Binoy Sasmal';
+  font-family: var(--font-display);
+  font-weight: var(--fw-thin);
+  font-size: clamp(44px, 5vw, 72px);
+  letter-spacing: -0.02em;
+  color: var(--color-chalk); /* matches the built blocks — see .is-front below */
+}
+.nameplate__word {
+  display: flex;
+  align-items: flex-start;
+  gap: calc(var(--cell) * 1.9); /* space between letters (room for the echo) */
+}
+/* Each letter stacks a solid front grid over an offset outlined echo grid. */
+.nameplate__glyph {
+  position: relative;
+  display: inline-block;
+}
+.nameplate__grid {
+  --echo-line: max(1px, calc(var(--cell) * 0.14));
+  display: grid;
+  grid-auto-rows: var(--cell);
+}
+.nameplate__grid.is-front {
+  position: relative;
+  z-index: 1;
+  grid-template-columns: repeat(7, var(--cell));
+  gap: max(1px, calc(var(--cell) * 0.08)); /* thin dark grid lines between blocks */
+}
+/* The wireframe shadow: the same silhouette traced as one thin outline, pushed
+   down-right. gap:0 so the per-edge borders join into continuous lines. */
+.nameplate__grid.is-echo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  grid-template-columns: repeat(7, var(--cell));
+  transform: translate(calc(var(--cell) * 0.9), calc(var(--cell) * 0.9));
+}
+.nameplate__cell {
+  box-sizing: border-box;
+  width: var(--cell);
+  height: var(--cell);
+}
+/* Chalk, NOT Teal Glow (Binoy, 2026-09-05). At this scale the blocks were the
+   largest coloured area on the page, which made an accent the dominant colour
+   and left the Teal Core "VIEW WORK" pill reading as more green rather than as
+   the one filled element. The mark keeps its teal identity
+   through the echo outline, the glow and the caret — as accents. */
+.is-front .nameplate__cell.is-on {
+  background: var(--color-chalk);
+  transform-origin: center;
+  will-change: transform, opacity;
+}
+.is-echo .nameplate__cell.edge-t { border-top: var(--echo-line) solid var(--color-teal-glow); }
+.is-echo .nameplate__cell.edge-b { border-bottom: var(--echo-line) solid var(--color-teal-glow); }
+.is-echo .nameplate__cell.edge-l { border-left: var(--echo-line) solid var(--color-teal-glow); }
+.is-echo .nameplate__cell.edge-r { border-right: var(--echo-line) solid var(--color-teal-glow); }
+/* Write head — an absolutely-positioned caret that travels with the letters as
+   they are written (driven by nameplate.ts), then hands off to the resting
+   cursor. Hidden until the animation shows it. */
+.nameplate__caret {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: max(2px, calc(var(--cell) * 0.55));
+  height: calc(9 * var(--cell) + 8 * max(1px, calc(var(--cell) * 0.08)));
+  background: var(--color-teal-glow);
+  box-shadow: 0 0 calc(var(--cell) * 0.8) rgba(93, 202, 165, 0.6);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+/* Old headline copy, demoted to a supporting tagline under the nameplate. */
+.hero__tagline {
+  font-family: var(--font-display);
+  font-weight: var(--fw-thin);
+  font-size: clamp(24px, 3vw, 40px);
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+  color: var(--color-chalk);
+  margin: var(--space-18) 0 var(--space-24);
+}
+.hero__sub {
+  max-width: 42ch;
+  margin-bottom: var(--space-36);
+}
+.hero__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-18);
+  margin-bottom: var(--space-60);
+}
+.hero__proof {
+  font-family: var(--font-mono);
+  font-size: var(--text-body-sm);
+  color: var(--color-smoke);
+  max-width: 60ch;
+}
+/* The right half belongs to the particle canvas (fixed, behind); this element
+   reserves the space and hosts the photo + lens layers (Phase 5). */
+.hero__stage {
+  position: relative;
+  min-height: min(70svh, 640px);
+}
+/* Positioned/sized every frame by hero/lens.ts to the particle face's
+   projected rect (viewport coords -> position: fixed). Sits above the field
+   canvas, below the copy. */
+.hero__photo {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1;
+  pointer-events: none;
+  will-change: opacity, mask-image;
+  object-fit: fill;
+}
+.hero__copy { position: relative; z-index: 2; }
+.hero__photo-toggle {
+  position: absolute;
+  bottom: var(--space-12);
+  right: var(--space-12);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-teal-glow);
+  border: 1px solid var(--color-teal-glow);
+  border-radius: var(--radius-pill);
+  padding: 8px 14px;
+  background: rgba(6, 9, 11, 0.6);
+}
+
+@media (max-width: 900px) {
+  .hero { padding-top: var(--space-120); }
+  .hero__inner { grid-template-columns: 1fr; }
+  /* Face canvas above, copy below; eyes above the fold */
+  .hero__stage { order: -1; min-height: 40svh; }
+}
+
+/* ---- 2 · About ---- */
+
+.about__inner {
+  max-width: calc(var(--measure) + 2 * var(--gutter));
+  text-align: left;
+}
+.about__body {
+  margin-top: var(--space-24);
+  font-size: var(--text-subheading);
+  line-height: 1.6;
+  max-width: var(--measure);
+}
+
+/* ---- 3 · Experience ---- */
+
+.experience .hairline { margin: var(--space-60) 0; }
+
+.org__name { margin-bottom: var(--space-36); }
+
+.role { margin-bottom: var(--space-36); }
+.role:last-child { margin-bottom: 0; }
+
+.role__title {
+  font-weight: var(--fw-medium);
+  font-size: var(--text-heading-sm);
+  line-height: 1.25;
+  color: var(--color-chalk);
+}
+.role__meta {
+  font-family: var(--font-mono);
+  font-size: var(--text-body-sm);
+  color: var(--color-smoke);
+  margin: var(--space-6) 0 var(--space-18);
+}
+.role__body {
+  max-width: var(--measure);
+  margin-bottom: var(--space-18);
+}
+/* Inline link inside body copy (the Deutschlandstipendium credit in the RPTU
+   entry is the only one today). base.css sets `a { color: inherit;
+   text-decoration: none }`, so a bare link in a paragraph is INVISIBLE — it
+   needs its own affordance. Teal Glow + a persistent underline, matching the
+   `.pcard__link` / `.projects__repos` treatment; `.text-action` is not usable
+   here because it is mono at body-sm and would break the paragraph's setting. */
+.link-inline {
+  color: var(--color-teal-glow);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-teal-glow) 45%, transparent);
+  transition: border-color 160ms ease;
+}
+.link-inline:hover,
+.link-inline:focus-visible { border-bottom-color: var(--color-teal-glow); }
+
+.role__metrics {
+  font-style: italic;
+  color: var(--color-ash);
+  max-width: var(--measure);
+  margin: var(--space-18) 0;
+}
+.role .tags { margin-top: var(--space-18); }
+
+/* Body copy lives in the LEFT negative space — the four Experience logos are
+   anchored right by the morph engine (morph/scroll PLACEMENT), so the column
+   must clear the cluster core rather than run under it. Headings stay full-width
+   (thin display reads fine over the sparse particle edge). */
+.experience .org { max-width: var(--measure); }
+@media (min-width: 1000px) { .experience .org { max-width: 48%; } }
+
+/* ---- 4 · Projects — the dealt card deck ----------------------------------
+   The dealt card deck, in our palette.
+   FOUR cards, exactly as the original — every geometric constant below is the
+   measured value from the live page, NOT a retuning. Transforms are set
+   per-frame by src/projects/deck.ts; nothing here animates on its own.
+
+   THE SPREAD MATHS (analysis §2). Each card is exactly three of twelve columns,
+   which is what makes the fan land edge-to-edge: with N=4 the card width below
+   reduces to (deckWidth - 3*gap)/4, so deck.ts's spreadX(p) resolves to exactly
+   p * (cardW + gap) and card 4's right edge lands on the content width. The
+   count is baked into that "3 columns"; four cards is not a style choice here,
+   it is what the geometry is solved for. Adding a fifth breaks the fit.
+
+   THE SECTION IS FULL-BLEED, like the original — deliberately NOT inside
+   --page-max/--canvas-max. That is also what lets every size below stay in raw
+   vw: the card width tracks the viewport at all widths, so a vw font stays
+   proportional to its card and needs no clamping.                             */
+
+.projects {
+  /* 12-column token grid. */
+  --pgap: 2vw;
+  --pspace: calc((100% - 11 * var(--pgap)) / 12);
+  --ppad-x: max(5vw, 40px);
+  --ppad-y: clamp(30px, 4vw, 50px);
+  /* Exactly three columns wide; see THE SPREAD MATHS above. */
+  --pcard-w: calc(var(--pspace) * 3 + var(--pgap) * 2);
+  --pcard-h: calc(var(--pcard-w) * 1481 / 1062);
+  /* Gap from the bottom of the head row to the top of the entering deck. */
+  --head-gap: var(--space-96);
+  /* Card stock: the flat field colour sampled out of card-back.png, so the face
+     and the back read as two sides of one physical card. */
+  --card-stock: #021d18;
+  --card-runway: 400vh; /* 100vh pin + 300vh travel = the full runway (tuning knob) */
+  /* Everything in the section is em off this one value, as in the original. */
+  font-size: clamp(0.875rem, 1vw, 1.75rem);
+  padding-bottom: 0;
+}
+@media (max-width: 812px) { .projects { --pgap: 4vw; --ppad-x: 25px; --ppad-y: 25px; } }
+@media (max-width: 400px) { .projects { --ppad-x: 15px; --ppad-y: 15px; } }
+
+/* Head row: title left, subheader set in-line with it on the right, their
+   bottoms aligned. DEVIATION (Binoy, 2026-09-05): the reference layout
+   takes the subheader out of flow and drops it `26vw` down the page, which
+   works because their title is TWO lines of 12vw. Ours is one word, so that
+   offset left a large dead band between the title and the deck. Aligning the
+   two on one baseline closes it and reads as one masthead. */
+.projects__inner {
+  position: relative;
+  padding: 0 var(--ppad-x);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  column-gap: var(--pgap);
+}
+
+/* ---- Title: one giant word, letters rising in (analysis §5 "Title") ---- */
+
+.projects__title {
+  grid-column: 1;
+  font-size: 12vw;
+  font-weight: var(--fw-thin);
+  line-height: 1em;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  color: var(--color-chalk);
+  margin: 0;
+}
+@media (min-aspect-ratio: 21/9) { .projects__title { font-size: 8vw; } }
+@media (max-width: 812px)       { .projects__title { font-size: 18vw; } }
+
+/* Wrappers built by deck.ts: the line box clips, the letters slide inside it. */
+.projects__title-line { display: block; position: relative; overflow: hidden; }
+.projects__title-char { display: inline-block; will-change: transform; }
+
+/* ---- Subheader ---- */
+
+.projects__subheader {
+  grid-column: 2;
+  width: 20em;
+  /* Lifts the last line off the title's baseline so they sit optically level
+     rather than mathematically flush. */
+  padding-bottom: 0.5em;
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: var(--color-ash);
+}
+@media (min-aspect-ratio: 21/9) { .projects__subheader { font-size: 1em; } }
+@media (max-width: 812px) {
+  /* Too narrow to sit beside the title — drops under it. */
+  .projects__inner { grid-template-columns: 1fr; }
+  .projects__subheader {
+    grid-column: 1;
+    width: 100%;
+    padding-bottom: 0;
+    margin-top: var(--space-24);
+  }
+}
+.projects__subheader-line { display: block; position: relative; overflow: hidden; }
+.projects__subheader-inner { display: block; will-change: transform; }
+
+
+
+/* ---- Runway + pin --------------------------------------------------------
+   Native sticky over a tall runway. The alternative is pinning by translating inside a
+   virtual scroller; sticky is visually equivalent and far easier to reason
+   about — the one deliberate deviation, same as the reference reproduction. */
+
+.projects__runway {
+  grid-column: 1 / -1; /* spans under the title + subheader head row */
+  position: relative;
+  width: 100%;
+  height: var(--card-runway);
+  /* Pulls the runway up under the head row. The pin centres the deck in a 100vh
+     box, so BEFORE it sticks the deck sits (100vh − cardH)/2 below the runway
+     top — a ~240px void between the title and the entering cards at a 900px
+     viewport, which grows on taller screens. Cancelling that term leaves an
+     exact, viewport-independent --head-gap.
+     This does NOT touch the pinned composition: once stuck, the deck's position
+     comes from `top: 0` + the pin height, neither of which this changes. Nor
+     does it shift the choreography — screenRatio and the deck's offset within
+     the runway both move together, so the fan still starts at the same deck
+     visibility (see SEQUENCE_SHIFT in deck.ts). */
+  margin-top: calc(var(--head-gap) - 50vh + var(--pcard-h) / 2);
+  /* That negative pull makes this box (and the 100vh pin inside it) overlap the
+     head row, and on tall viewports graze the section above. Nothing there is
+     interactive today, but an invisible 400vh box swallowing clicks is a nasty
+     thing to debug later — so the runway itself is inert and the cards opt back
+     in. */
+  pointer-events: none;
+}
+.pcard { pointer-events: auto; }
+.projects__pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+}
+.projects__deck {
+  position: relative;
+  width: 100%;
+  perspective: calc(var(--vh, 1vh) * 100);
+  perspective-origin: center;
+}
+
+/* At 21:9 the original narrows the deck to 75% so the fan does not stretch
+   across an ultrawide (analysis §4). */
+@media (min-aspect-ratio: 21/9) { .projects__runway { width: 75%; } }
+
+/* ≤812px the pin and the runway go away entirely and the cards become a two-up
+   float grid — each still flips, on its own scroll ratio (deck.ts mobile
+   branch). This is the original's breakpoint and its float layout. */
+@media (max-width: 812px) {
+  .projects { padding-bottom: calc(var(--section-gap) / 2); }
+  .projects__runway { height: auto; margin-top: var(--space-36); }
+  .projects__pin { position: static; height: auto; display: block; }
+  .projects__deck { perspective: 300vw; }
+}
+
+/* "All project repositories" — sits under the fanned deck, inside the pin, so
+   it is on screen together with the cards rather than before or after them.
+   ABSOLUTE, measured off the pin's centre: the deck is vertically centred in
+   the 100vh pin and must stay exactly there (its settled position is verified
+   dead-centre at several viewport heights), so this must not participate in
+   that layout. --pcard-h/2 clears the cards, then a fixed gap below.
+   deck.ts fades it in off the flip progress; no clip box, because unlike the
+   title and subheader this element is focusable and a clip would crop the ring. */
+.projects__repos {
+  /* The runway is `pointer-events: none` (it overlaps the head row and would
+     otherwise swallow clicks); the cards opt back in and so must this. */
+  pointer-events: auto;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  margin-top: calc(var(--pcard-h) / 2 + 3.2rem);
+  text-align: center;
+  will-change: transform, opacity;
+}
+/* Echoes the cards' own "VIEW REPO ↗" — uppercase mono with a teal rule under
+   it — so it reads as the same kind of action, just for the whole section
+   rather than one card. A step up in size and a persistent underline (the
+   cards' is the same treatment) rather than .text-action's hover-only one,
+   because at 14px chalk centred on the void it was too quiet to find. */
+.projects__repos .projects__repos-label {
+  display: inline-block;
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding-bottom: 0.35em;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-teal-glow) 55%, transparent);
+  transition: color 160ms ease, border-color 160ms ease;
+}
+.projects__repos:hover .projects__repos-label,
+.projects__repos:focus-visible .projects__repos-label {
+  color: var(--color-teal-glow);
+  border-bottom-color: var(--color-teal-glow);
+}
+/* .text-action underlines on hover; the rule above is the underline here. */
+.projects__repos:hover { text-decoration: none; }
+@media (max-width: 812px) {
+  /* No pin here — the deck is a wrapping float grid, so the link just follows
+     it in normal flow and is always visible. */
+  .projects__repos {
+    position: static;
+    margin: var(--space-60) 0 0;
+    display: block;
+    clear: both;
+  }
+}
+
+/* ---- The card -------------------------------------------------------------
+   >812px: all four stacked at the same origin; position is 100% JS transform.
+   ≤812px: a two-up float grid. ≤560px: single column.
+
+   CARD FONT. Every size inside the card is em off this one value, so the whole
+   face scales with the card instead of needing its own breakpoints. The four
+   values below are the original's (1.3vw / .87vw / 2.4vw / 5vw) — do not clamp
+   them: the section is full-bleed, so the card width tracks the viewport at all
+   widths and a raw vw font stays proportional to its card.                    */
+
+.pcard {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: inline-block;
+  width: var(--pcard-w);
+  aspect-ratio: 1062 / 1481; /* card-back.png's native ratio */
+  font-size: 1.3vw;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+@media (min-aspect-ratio: 21/9) { .pcard { font-size: 0.87vw; } }
+@media (max-width: 812px) {
+  .pcard {
+    position: relative;
+    width: calc(50% - var(--pgap) / 2);
+    font-size: 2.4vw;
+  }
+  .pcard:nth-child(n + 3) { margin-top: 3em; }
+  .pcard:nth-child(odd)   { float: right; }
+}
+@media (max-width: 560px) {
+  .pcard { width: 100%; font-size: 5vw; float: none !important; }
+  .pcard:nth-child(n + 1) { margin-top: 3em; }
+}
+
+.pcard__face,
+.pcard__back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: 0.8em;
+}
+.pcard__face {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.4em 1.6em;
+  background: var(--card-stock);
+  border: 1px solid color-mix(in srgb, var(--color-teal-glow) 30%, transparent);
+  color: var(--color-chalk);
+  overflow: hidden;
+}
+.pcard__back {
+  background-image: url(/cards/card-back.png);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  transform: rotateY(180deg);
+}
+
+/* ---- Card face contents: playing-card head, mirrored glyph at the foot ---- */
+
+.pcard__head,
+.pcard__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5em;
+}
+.pcard__name {
+  margin: 0;
+  font-size: 1.25em;
+  font-weight: var(--fw-medium);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: var(--color-chalk);
+}
+.pcard__glyph {
+  flex: none;
+  font-family: var(--font-mono), 'Segoe UI Symbol', 'Apple Symbols', sans-serif;
+  font-size: 2em;
+  line-height: 1;
+  color: var(--color-teal-glow);
+}
+/* The playing-card conceit: the glyph repeats rotated at the opposite corner.
+   We deliberately do NOT rotate the whole footer — the repo link has to stay
+   readable, so only the glyph turns. */
+.pcard__glyph--foot { transform: rotate(180deg); }
+
+.pcard__body { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+.pcard__desc {
+  margin: 0 0 1.4em;
+  font-size: 0.85em;
+  line-height: 1.45;
+  color: var(--color-ash);
+}
+
+.pcard__specs { margin: 0; padding: 0; list-style: none; }
+.pcard__specs li {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5em;
+  font-family: var(--font-mono);
+  font-size: 0.72em;
+  line-height: 1.4;
+  /* Clips the leader to the ROW. Clipping at the card padding box instead
+     their values sit inside the list text; ours are flush right, so a face-level
+     clip leaves stray dots in the right padding, past the value. */
+  overflow: hidden;
+}
+.pcard__specs li:not(:first-child) { margin-top: 1.1em; }
+.pcard__specs span { color: var(--color-smoke); white-space: nowrap; }
+.pcard__specs b {
+  font-weight: var(--fw-medium);
+  color: var(--color-teal-glow);
+  white-space: nowrap;
+}
+/* Dotted leader (analysis §3): a literal run of periods, not a border — it
+   overflows the row and is clipped by the face's padding box, so it always
+   runs edge to edge whatever the label length. Sits UNDER the label/value,
+   which paint over it on their own backgrounds. */
+.pcard__specs li::before {
+  content: "..............................";
+  position: absolute;
+  left: 0;
+  bottom: 0.18em;
+  font-size: 1em;
+  letter-spacing: 0.14em;
+  color: var(--color-teal-glow);
+  opacity: 0.22;
+  pointer-events: none;
+}
+.pcard__specs span,
+.pcard__specs b {
+  position: relative;
+  background: var(--card-stock);
+  padding: 0 0.25em;
+}
+.pcard__specs span { padding-left: 0; }
+.pcard__specs b { padding-right: 0; }
+
+.pcard__link {
+  font-family: var(--font-mono);
+  font-size: 0.72em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-chalk);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-teal-glow) 45%, transparent);
+  padding-bottom: 0.15em;
+  transition: color 160ms ease, border-color 160ms ease;
+}
+.pcard__link:hover,
+.pcard__link:focus-visible {
+  color: var(--color-teal-glow);
+  border-bottom-color: var(--color-teal-glow);
+}
+
+/* ---- Reduced motion: no deck, no flip — a plain readable grid ------------ */
+@media (prefers-reduced-motion: reduce) {
+  /* margin-top MUST be reset with the height: the negative pull only makes
+     sense against the 100vh pin, and there is no pin here — left in place it
+     would lift the card grid up over the title. */
+  .projects__runway { height: auto !important; margin-top: var(--space-36) !important; }
+  .projects__pin { position: static; height: auto; display: block; }
+  .projects__deck {
+    perspective: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--space-24);
+  }
+  .pcard {
+    position: relative;
+    width: auto;
+    float: none !important;
+    margin: 0 !important;
+    font-size: 15px;
+    transform: none !important;
+    aspect-ratio: auto;
+    min-height: 320px;
+  }
+  .pcard__face { position: relative; inset: auto; height: 100%; }
+  .pcard__back { display: none; }
+}
+
+/* ---- 5 · Skills ---- */
+
+.skills__groups {
+  display: grid;
+  gap: var(--space-36);
+}
+.skills__group {
+  display: grid;
+  grid-template-columns: minmax(180px, 260px) 1fr;
+  gap: var(--space-24);
+  align-items: start;
+}
+.skills__group dt { padding-top: 5px; }
+
+/* Tag rows stay left of the right-anchored brain cluster. */
+@media (min-width: 1000px) {
+  .skills__groups { max-width: 56%; }
+}
+
+@media (max-width: 700px) {
+  .skills__group { grid-template-columns: 1fr; gap: var(--space-12); }
+}
+
+/* ---- 6 · Contact ---- */
+
+.contact { padding-bottom: var(--space-120); }
+.contact__inner {
+  text-align: center;
+  display: grid;
+  justify-items: center;
+  gap: var(--space-18);
+}
+.contact__headline {
+  font-weight: var(--fw-thin);
+  font-size: var(--text-display);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+}
+.contact__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-24);
+  margin-top: var(--space-24);
+}
+
+/* ---- Footer ---- */
+
+.footer {
+  border-top: 1px solid var(--color-hairline);
+  padding: var(--space-36) 0;
+  /* Flat void seat so the fixed field doesn't bleed through the legal line
+     (matches the nav's scrolled treatment — no tint, no elevation). */
+  background: var(--color-void);
+}
+.footer__inner {
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-24);
+}
+.footer__domain { height: 20px; width: auto; }
+.footer__tagline { font-size: var(--text-body-sm); }
+.footer__legal {
+  font-family: var(--font-mono);
+  font-size: var(--text-body-sm);
+  color: var(--color-smoke);
+  margin-left: auto;
+}

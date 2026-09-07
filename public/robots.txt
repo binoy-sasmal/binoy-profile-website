@@ -1,0 +1,63 @@
+# binoysasmal.tech
+# Single-page personal portfolio. Nothing here is private, gated, or duplicated,
+# so there is nothing to disallow — every crawler gets the whole site.
+
+User-agent: *
+Allow: /
+
+# --- AI answer engines -------------------------------------------------------
+# These are already covered by the wildcard above. They are listed explicitly
+# because several of these agents treat an ABSENT named rule as "no opinion" and
+# some vendors have changed their default from allow to deny between versions.
+# An explicit Allow is a durable signal that this site wants to be cited in AI
+# search results, which is a stated goal for this domain.
+
+# OpenAI — ChatGPT search, user-initiated fetches, model training
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+# Anthropic — Claude search, user-initiated fetches, model training
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+# Perplexity
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+# Google — Gemini grounding and AI Overviews. This is a robots.txt token honoured
+# by Google, not a separate crawler; Googlebot itself is covered by the wildcard.
+User-agent: Google-Extended
+Allow: /
+
+# Microsoft Copilot rides Bingbot's index; Bingbot is covered by the wildcard.
+# Apple Intelligence / Siri
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+# Meta AI
+User-agent: meta-externalagent
+Allow: /
+
+# Common Crawl — the corpus a large number of downstream models are built from
+User-agent: CCBot
+Allow: /
+
+Sitemap: https://binoysasmal.tech/sitemap.xml

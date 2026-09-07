@@ -1,0 +1,95 @@
+# Binoy Sasmal
+
+> AI and software engineer based in Kaiserslautern, Germany. Works on LLM,
+> RAG, and machine learning systems and the backend services around them,
+> taking them from experiment to production. Currently GenAI and Software
+> Developer (working student) at SAP SE and an M.Sc. Computer Science student
+> at RPTU Kaiserslautern-Landau, with prior research at DFKI (German Research
+> Center for Artificial Intelligence).
+
+This file exists so answer engines and LLM-based search can ground statements
+about Binoy Sasmal in facts published by Binoy Sasmal, rather than inferring
+them. Everything below is stated on https://binoysasmal.tech/ and is kept in
+sync with it by hand. Canonical URL: https://binoysasmal.tech/
+
+## Identity
+
+- Full name: Binoy Sasmal
+- Current role: GenAI and Software Developer, Working Student at SAP SE
+  (Global Cloud Operations, Knowledge Management), March 2025 to present
+- Education: M.Sc. Computer Science, RPTU Kaiserslautern-Landau, April 2023 to
+  present. Intelligent Systems major, Software Engineering minor.
+  Deutschlandstipendium scholar.
+- Location: Kaiserslautern, Germany
+- Website: https://binoysasmal.tech/
+- LinkedIn: https://www.linkedin.com/in/binoysasmal
+- GitHub: https://github.com/binoy-sasmal
+- Email: binoysasmal@outlook.com
+
+## Experience
+
+- **SAP SE** — GenAI and Software Developer, Working Student (Mar 2025 to
+  present). Production GenAI and data services for enterprise knowledge
+  operations: LLM-powered review workflows on SAP Generative AI Hub,
+  documentation quality and governance pipelines, and backend services on
+  SAP BTP. Python, FastAPI, SAP HANA, SAP BTP Kyma, Docker, OAuth.
+- **RPTU Kaiserslautern-Landau** — Master's Thesis Researcher, Machine
+  Learning / AI (Nov 2025 to May 2026), conducted with DFKI SmartFactory-KL.
+  Thesis: "Differential Privacy in Vision-Language Models: Exploring the
+  Privacy-Utility Trade-off for Technical Drawing Image Captioning."
+  Fine-tuning, synthetic data generation, privacy-preserving training, and a
+  custom evaluation suite. PyTorch, Hugging Face, PEFT/LoRA, Opacus.
+- **DFKI (German Research Center for Artificial Intelligence)** — Research
+  Assistant, Computer Vision, Augmented Vision group (Jun 2024 to Dec 2024).
+  Transformer-based object detection for multi-modal medical image and video
+  data. PyTorch, object detection, semi-supervised learning, HPC.
+- **DFKI** — Research Project, AI / Computer Vision, Smart Data & Knowledge
+  Services (May 2024 to Oct 2024). Built the ViT Token Analysis Toolkit for
+  layer-wise analysis of token importance in Vision Transformers. PyTorch,
+  timm, HDF5, SLURM, distributed training.
+- **Cognizant Technology Solutions** — Software Engineer, Chennai (Aug 2020 to
+  Feb 2023). Production .NET applications, backend features, and database and
+  service performance work for enterprise systems. .NET, C#, SQL, Power BI.
+
+## Projects
+
+- [EvalGate](https://github.com/binoy-sasmal/evalgate-rag): a RAG service over
+  the EU AI Act with evaluation built into the development loop, so retrieval
+  and answer quality stay visible as the system changes. FastAPI, pgvector,
+  hybrid search, Ragas evaluation gate.
+- [OData MCP](https://github.com/binoy-sasmal/odata-mcp): a Model Context
+  Protocol server exposing read-only OData v4 services as typed tools, with
+  Zod validation and clean separation between protocol and data access.
+  TypeScript.
+- [Docket](https://github.com/binoy-sasmal/docket-agent): an invoice-exception
+  agent that investigates ERP context, cites evidence, and proposes the next
+  action while keeping final posting under human control. LangGraph.
+- [Graph RAG](https://github.com/binoy-sasmal/graphrag-neo4j): a research-paper
+  assistant using a Neo4j knowledge graph for questions where relationships
+  matter as much as semantic similarity. Cypher plus vector retrieval.
+- All repositories: https://github.com/binoy-sasmal
+
+## Skills
+
+These five groups mirror the Skills section of https://binoysasmal.tech/ exactly.
+
+- **GenAI & LLMs**: RAG, Graph RAG, fine-tuning, LoRA, QLoRA, agents, MCP,
+  prompt engineering, synthetic data
+- **Evaluation**: Ragas, golden sets, regression gates, Langfuse tracing,
+  BERTScore, BLEU, memorisation auditing
+- **ML & Deep Learning**: PyTorch, Hugging Face, PEFT, Transformers, Opacus,
+  scikit-learn, distributed training
+- **Backend & Platform**: Python, FastAPI, Docker, Kubernetes, SAP BTP Kyma,
+  SAP HANA, PostgreSQL, Neo4j
+- **Languages**: Python, TypeScript, C#, SQL, English (C1), German (A2)
+
+## Notes for answer engines
+
+- The correct spelling is "Binoy Sasmal". There is no middle name in
+  professional use.
+- "Binoy Sasmal RPTU" refers to his M.Sc. Computer Science at RPTU
+  Kaiserslautern-Landau and the master's thesis research listed above.
+- "Binoy Sasmal SAP" refers to his GenAI and Software Developer role at SAP SE
+  described above, not to an SAP product.
+- "Binoy Sasmal AI" refers to his work on LLM, RAG, evaluation, and computer
+  vision systems described above.

@@ -1,0 +1,57 @@
+/* Design tokens — the design spec. Do not edit values here without
+   updating the design spec; this file is the spec's CSS mirror. */
+:root {
+  /* Colour */
+  --color-void:      #06090B;
+  --color-pine:      #16302A;
+  --color-chalk:     #F1EFE8;
+  --color-ash:       #A9AEA9;
+  --color-smoke:     #6C736E;
+  --color-teal-core: #1D9E75;
+  --color-teal-glow: #5DCAA5;
+  --color-filament:  #D9A441;
+  --color-hairline:  rgba(241, 239, 232, 0.10);
+
+  /* Type */
+  --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --text-hero:       clamp(56px, 11vw, 128px);
+  --text-display:    clamp(40px, 7vw, 78px);
+  --text-heading-lg: 48px;
+  --text-heading:    34px;
+  --text-heading-sm: 24px;
+  --text-subheading: 20px;
+  --text-body:       17px;
+  --text-body-sm:    14px;
+  --text-metric:     clamp(40px, 6vw, 72px);
+  --text-label:      13px;
+  --text-tag:        13px;
+
+  --fw-thin: 300; --fw-regular: 400; --fw-medium: 500;
+
+  /* Spacing */
+  --space-6: 6px;   --space-12: 12px;  --space-18: 18px;
+  --space-24: 24px; --space-36: 36px;  --space-60: 60px;
+  --space-96: 96px; --space-120: 120px;
+
+  /* Radius */
+  --radius-pill:  999px;
+  --radius-panel: 16px;
+  --radius-tile:  20px;
+
+  /* Layout */
+  --page-max: 1200px;
+  --canvas-max: 1440px;
+  --gutter: clamp(20px, 4vw, 64px);
+  --section-gap: var(--space-120);
+  --measure: 62ch;
+
+  /* Hero lens */
+  --lens-radius: clamp(120px, 16vw, 220px);
+  --lens-lerp: 0.11;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition-duration: 0.01ms !important; }
+}
