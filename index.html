@@ -130,6 +130,12 @@
   <link rel="preload" href="/fonts/space-grotesk-latin-300-normal.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="/fonts/jetbrains-mono-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin />
 
+  <!-- Hero photograph. Preloaded because the cursor lens only reveals it after
+       decode (DESIGN §9) — discovered late it would pop in mid-hover on the
+       first pass. It is NOT the LCP element (the nameplate is), so it sits
+       after the fonts. -->
+  <link rel="preload" href="/photo/hero.webp" as="image" type="image/webp" fetchpriority="high" />
+
   <!-- Structured data. One @graph, three nodes: the page, the person, the site.
        This is the single highest-leverage block on the page for the goal of
        "rank for Binoy Sasmal + RPTU / SAP / AI", because it states the
@@ -142,10 +148,11 @@
        an institution's. The Experience section's real semantic HTML already
        reads fine as plain content.
 
-       `image` is deliberately ABSENT until the real photo ships. A wrong image
-       is worse than a missing one for Google's entity matching, and the current
-       /photo/hero-placeholder.png is a placeholder bust, not Binoy. Add
-       "image": "https://binoysasmal.tech/photo/hero.jpg" here when Phase 6 lands. -->
+       `image` now points at the real portrait (2026-09-07). It was deliberately
+       absent while /photo/hero-placeholder.png was a drawn bust — a wrong image
+       is worse than a missing one for Google's entity matching. WebP is an
+       accepted format for structured-data images; the transparent background
+       composites onto whatever ground a rich result uses. -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -176,6 +183,7 @@
         "givenName": "Binoy",
         "familyName": "Sasmal",
         "url": "https://binoysasmal.tech/",
+        "image": "https://binoysasmal.tech/photo/hero.webp",
         "email": "mailto:binoysasmal@outlook.com",
         "jobTitle": "AI and Software Engineer",
         "description": "AI and software engineer working on LLM, RAG, and machine learning systems and the backend services around them, from experiment to production.",
@@ -288,8 +296,14 @@
         </div>
         <div class="hero__stage">
           <!-- Layer 04: real photograph, revealed under the cursor lens (Phase 5).
-               Placeholder until the shoot; framing must match the face bake crop. -->
-          <img class="hero__photo" src="/photo/hero-placeholder.png" alt="Binoy Sasmal" hidden />
+               Shares ONE square crop with the face bake matte (both written by
+               tools/bake/prep_face.py), which is what keeps it registered with
+               the particles — lens.ts stretches it onto the projected [0,1] box.
+               Never swap this file for a differently-cropped export.
+               WebP only, no <picture>: AVIF measured LARGER at every quality for
+               this mostly-transparent frame (see prep_face.save_photo). -->
+          <img class="hero__photo" src="/photo/hero.webp" alt="Binoy Sasmal"
+               width="1536" height="1536" fetchpriority="high" hidden />
           <button class="hero__photo-toggle" type="button" hidden>Show photo</button>
         </div>
       </div>
